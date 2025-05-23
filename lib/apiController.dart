@@ -1,9 +1,11 @@
+import 'package:fit_app/signup.dart';
 import 'package:flutter/material.dart';
 import 'services/nutritionix_api.dart';
 import 'widgets/exercise_response_card.dart';
 import 'widgets/food_response_card.dart';
 
-void main() => runApp(NutritionixApp());
+
+// void main() => runApp(NutritionixApp());
 
 class NutritionixApp extends StatelessWidget {
   @override
@@ -30,7 +32,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final api = NutritionixApi(appId: 'APP_ID', appKey: 'API_KEY');
+  final api = NutritionixApi(appId: 'APPID', appKey: 'APP');
 
   @override
   void initState() {
@@ -49,6 +51,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton( icon: Icon(Icons.logout),  onPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) =>  SignUpWidget(),));
+        }, ),
         title: Text(
           'Nutritionix Explorer',
           style: TextStyle(fontWeight: FontWeight.bold),
