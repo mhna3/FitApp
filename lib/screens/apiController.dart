@@ -1,20 +1,19 @@
-import 'package:fit_app/signup.dart';
 import 'package:flutter/material.dart';
-import 'services/nutritionix_api.dart';
-import 'widgets/exercise_response_card.dart';
-import 'widgets/food_response_card.dart';
-
-
-// void main() => runApp(NutritionixApp());
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fit_app/screens/login.dart';
+import '../services/nutritionix_api.dart';
+import '../widgets/exercise_response_card.dart';
+import '../widgets/food_response_card.dart';
+import 'classes_tab.dart';
 
 class NutritionixApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Nutritionix GUI',
       theme: ThemeData(
         primarySwatch: Colors.green,
-        fontFamily: 'Poppins',
         cardTheme: CardTheme(
           elevation: 4,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -32,13 +31,15 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final api = NutritionixApi(appId: 'APPID', appKey: 'APP');
+  final api = NutritionixApi(appId: 'appId', appKey: 'appKey');
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? currentUser;
 
   @override
   void initState() {
     super.initState();
-    // Reduced from 4 to 2 tabs
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // Changed from 2 to 3
+    currentUser = _auth.currentUser;
   }
 
   @override
@@ -47,18 +48,79 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
+  Future<void> _signOut() async {
+    try {
+      await _auth.signOut();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged out successfully'),
+          backgroundColor: Color(0xFF06402B),
+        ),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error logging out'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton( icon: Icon(Icons.logout),  onPressed: (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) =>  SignUpWidget(),));
-        }, ),
-        title: Text(
-          'Nutritionix Explorer',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        leading: IconButton(
+          icon: Icon(Icons.logout),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Logout'),
+                  content: Text('Are you sure you want to logout?'),
+                  actions: [
+                    TextButton(
+                      child: Text('Cancel'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text('Logout'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _signOut();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Fit App',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            if (currentUser != null)
+              Text(
+                'Welcome, ${currentUser!.displayName ?? currentUser!.email}',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+              ),
+          ],
         ),
         elevation: 0,
+        backgroundColor: Color(0xFF06402B),
+        foregroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabController,
           indicatorWeight: 3,
@@ -72,6 +134,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               text: 'Exercise',
               icon: Icon(Icons.fitness_center),
             ),
+            Tab(
+              text: 'Classes',
+              icon: Icon(Icons.event),
+            ),
           ],
         ),
       ),
@@ -80,6 +146,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         children: [
           NaturalNutrientsTab(api: api),
           ExerciseTab(api: api),
+          ClassesTab(), // Added the new ClassesTab
         ],
       ),
     );
@@ -139,9 +206,9 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.green, width: 2),
+                borderSide: BorderSide(color: Color(0xFF06402B), width: 2),
               ),
-              prefixIcon: Icon(Icons.food_bank),
+              prefixIcon: Icon(Icons.food_bank, color: Color(0xFF06402B)),
               suffixIcon: IconButton(
                 icon: Icon(Icons.clear),
                 onPressed: () => _controller.clear(),
@@ -165,6 +232,8 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
                 : Icon(Icons.search),
             label: Text(_loading ? 'Searching...' : 'Get Nutrients'),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF06402B),
+              foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
@@ -260,9 +329,9 @@ class _ExerciseTabState extends State<ExerciseTab> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.green, width: 2),
+                borderSide: BorderSide(color: Color(0xFF06402B), width: 2),
               ),
-              prefixIcon: Icon(Icons.fitness_center),
+              prefixIcon: Icon(Icons.fitness_center, color: Color(0xFF06402B)),
               suffixIcon: IconButton(
                 icon: Icon(Icons.clear),
                 onPressed: () => _controller.clear(),
@@ -286,6 +355,8 @@ class _ExerciseTabState extends State<ExerciseTab> {
                 : Icon(Icons.calculate),
             label: Text(_loading ? 'Calculating...' : 'Calculate Calories'),
             style: ElevatedButton.styleFrom(
+              backgroundColor: Color(0xFF06402B),
+              foregroundColor: Colors.white,
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
