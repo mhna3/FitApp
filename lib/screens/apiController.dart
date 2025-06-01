@@ -5,6 +5,7 @@ import '../services/nutritionix_api.dart';
 import '../widgets/exercise_response_card.dart';
 import '../widgets/food_response_card.dart';
 import 'classes_tab.dart';
+import '../screens/profile_page.dart';
 
 class NutritionixApp extends StatelessWidget {
   @override
@@ -31,15 +32,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final api = NutritionixApi(appId: 'appId', appKey: 'appKey');
+  final api = NutritionixApi(appId: 'appid', appKey: 'appkey');
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? currentUser;
+  int _currentIndex = 0;
+  final List<Widget> _pages = [];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this); // Changed from 2 to 3
     currentUser = _auth.currentUser;
+
+    _pages.addAll([
+      NaturalNutrientsTab(api: api),
+      ExerciseTab(api: api),
+      ClassesTab(),
+      ProfilePage(),
+    ]);
   }
 
   @override
@@ -74,80 +84,72 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.logout),
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Logout'),
-                  content: Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(
-                      child: Text('Cancel'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    TextButton(
-                      child: Text('Logout'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _signOut();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );
-          },
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Fit App',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      backgroundColor: Color(0xFFF5F5F5),
+      body: _pages[_currentIndex],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFFF5F5F5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: Offset(0, -2),
             ),
-            if (currentUser != null)
-              Text(
-                'Welcome, ${currentUser!.displayName ?? currentUser!.email}',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+          ],
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            selectedItemColor: Color(0xFF06402B),
+            unselectedItemColor: Colors.grey[600],
+            backgroundColor: Colors.grey[50],
+            type: BottomNavigationBarType.fixed,
+            elevation: 0,
+            onTap: (index) => setState(() => _currentIndex = index),
+            items: [
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.restaurant_menu, 0),
+                label: 'Nutrients',
               ),
-          ],
-        ),
-        elevation: 0,
-        backgroundColor: Color(0xFF06402B),
-        foregroundColor: Colors.white,
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorWeight: 3,
-          indicatorColor: Colors.white,
-          tabs: [
-            Tab(
-              text: 'Nutrients',
-              icon: Icon(Icons.restaurant_menu),
-            ),
-            Tab(
-              text: 'Exercise',
-              icon: Icon(Icons.fitness_center),
-            ),
-            Tab(
-              text: 'Classes',
-              icon: Icon(Icons.event),
-            ),
-          ],
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.fitness_center, 1),
+                label: 'Exercise',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.event, 2),
+                label: 'Classes',
+              ),
+              BottomNavigationBarItem(
+                icon: _buildNavIcon(Icons.person, 3),
+                label: 'Profile',
+              ),
+            ],
+          ),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          NaturalNutrientsTab(api: api),
-          ExerciseTab(api: api),
-          ClassesTab(), // Added the new ClassesTab
-        ],
+    );
+  }
+  Widget _buildNavIcon(IconData icon, int index) {
+    final isSelected = _currentIndex == index;
+
+    return Container(
+      decoration: isSelected
+          ? BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xFF06402B).withOpacity(0.2),
+      ) : null,
+      padding: EdgeInsets.all(8),
+      child: Icon(
+        icon,
+        color: isSelected ? Color(0xFF06402B) : Colors.grey[600],
       ),
     );
   }
@@ -192,7 +194,24 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Scaffold(
+      backgroundColor: Color(0xFFF5F5F5),
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nutrients',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+          ],
+        ),
+        elevation: 0,
+        centerTitle: true,
+        backgroundColor: Color(0xFF06402B),
+        foregroundColor: Colors.white,
+      ),
+      body:  Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -267,6 +286,7 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
             ),
           ),
         ],
+       ),
       ),
     );
   }
@@ -315,7 +335,24 @@ class _ExerciseTabState extends State<ExerciseTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Scaffold(
+      backgroundColor: Color(0xFFF5F5F5),
+        appBar: AppBar(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Exercise',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+              ),
+            ],
+          ),
+          elevation: 0,
+          centerTitle: true,
+          backgroundColor: Color(0xFF06402B),
+          foregroundColor: Colors.white,
+        ),
+    body: Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -391,6 +428,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
           ),
         ],
       ),
+    ),
     );
   }
 }

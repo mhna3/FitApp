@@ -118,14 +118,6 @@ class FoodResponseCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          "Nutrition Facts",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.green.shade800,
-          ),
-        ),
         SizedBox(height: 12),
         Row(
           children: [
@@ -138,23 +130,36 @@ class FoodResponseCard extends StatelessWidget {
             _buildNutrientCircle(
               "Protein",
               "${food['nf_protein']}",
-              "g",
+              "grams",
               Colors.purple,
             ),
             _buildNutrientCircle(
               "Carbs",
               "${food['nf_total_carbohydrate']}",
-              "g",
+              "grams",
               Colors.blue,
             ),
             _buildNutrientCircle(
               "Fat",
               "${food['nf_total_fat']}",
-              "g",
+              "grams",
               Colors.red,
             ),
           ],
         ),
+        SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+          ElevatedButton(onPressed: (){
+
+          },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF06402B),
+                foregroundColor: Colors.white,
+              ),
+              child: Text('Add item', style: TextStyle(color: Colors.white),)),
+        ],)
       ],
     );
   }

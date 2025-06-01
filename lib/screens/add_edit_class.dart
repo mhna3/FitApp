@@ -82,6 +82,7 @@ class _AddEditClassScreenState extends State<AddEditClassScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF5F5F5),
       appBar: AppBar(
         title: Text(_isEditing ? 'Edit Class' : 'Add New Class'),
         backgroundColor: Color(0xFF06402B),

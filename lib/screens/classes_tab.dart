@@ -58,11 +58,24 @@ class _ClassesTabState extends State<ClassesTab> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text('Fitness Classes'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Classes',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+            ),
+          ],
+        ),
+        elevation: 0,
+        centerTitle: true,
         backgroundColor: Color(0xFF06402B),
         foregroundColor: Colors.white,
-        actions: [
+      ),
+      body: Column(
+        children: [
           if (_isAdmin)
             IconButton(
               icon: Icon(Icons.admin_panel_settings),
@@ -73,21 +86,28 @@ class _ClassesTabState extends State<ClassesTab> with SingleTickerProviderStateM
                 );
               },
             ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          tabs: [
-            Tab(text: 'All Classes', icon: Icon(Icons.fitness_center)),
-            Tab(text: 'My Classes', icon: Icon(Icons.bookmark)),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildAllClassesTab(),
-          _buildMyClassesTab(),
+          Material(
+            color: Color(0xFF06402B),
+            child: TabBar(
+              controller: _tabController,
+              indicatorColor: Colors.white,
+              labelColor: Colors.white,
+              unselectedLabelColor: Colors.white70,
+              tabs: [
+                Tab(text: 'All Classes', icon: Icon(Icons.fitness_center)),
+                Tab(text: 'My Classes', icon: Icon(Icons.bookmark)),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildAllClassesTab(),
+                _buildMyClassesTab(),
+              ],
+            ),
+          ),
         ],
       ),
     );
