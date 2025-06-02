@@ -1,16 +1,89 @@
 import 'package:flutter/material.dart';
+import '../services/exercise_service.dart';
 
-class ExerciseResponseCard extends StatelessWidget {
+class ExerciseResponseCard extends StatefulWidget {
   final Map<String, dynamic> exercise;
 
   const ExerciseResponseCard({super.key, required this.exercise});
 
   @override
-  Widget build(BuildContext context) {
-    final double caloriesBurned = exercise['nf_calories'] ?? 0;
-    final double duration = exercise['duration_min'] ?? 0;
-    final double caloriesPerMinute = duration > 0 ? caloriesBurned / duration : 0;
+  State<ExerciseResponseCard> createState() => _ExerciseResponseCardState();
+}
 
+class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
+  final ExerciseService _exerciseService = ExerciseService();
+  bool _isAdding = false;
+  bool _isAdded = false;
+
+  Future<void> _addExerciseItem() async {
+    setState(() {
+      _isAdding = true;
+    });
+
+    try {
+      await _exerciseService.addExerciseItem(widget.exercise);
+
+      setState(() {
+        _isAdded = true;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('${widget.exercise['name']} added to your workout!'),
+              ],
+            ),
+            backgroundColor: Color(0xFF06402B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+
+      // Reset the added state after 3 seconds
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _isAdded = false;
+          });
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Failed to add exercise: ${e.toString()}'),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAdding = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Card(
       elevation: 8,
       shadowColor: Colors.blue.withOpacity(0.4),
@@ -44,7 +117,7 @@ class ExerciseResponseCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        exercise['name']?.toString().toUpperCase() ?? 'EXERCISE',
+                        widget.exercise['name']?.toString().toUpperCase() ?? 'EXERCISE',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -53,7 +126,7 @@ class ExerciseResponseCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (exercise['photo'] != null)
+                  if (widget.exercise['photo'] != null)
                     Container(
                       width: 120,
                       height: 120,
@@ -62,9 +135,25 @@ class ExerciseResponseCard extends StatelessWidget {
                           topRight: Radius.circular(16),
                         ),
                         image: DecorationImage(
-                          image: NetworkImage(exercise['photo']['thumb']),
+                          image: NetworkImage(widget.exercise['photo']['thumb']),
                           fit: BoxFit.cover,
                         ),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topRight: Radius.circular(16),
+                        ),
+                        color: Colors.blue.shade200,
+                      ),
+                      child: Icon(
+                        Icons.fitness_center,
+                        size: 48,
+                        color: Colors.blue[800],
                       ),
                     ),
                 ],
@@ -80,30 +169,10 @@ class ExerciseResponseCard extends StatelessWidget {
                   _buildInfoRow(
                     Icons.timer,
                     "Duration",
-                    "${exercise['duration_min']} minutes",
+                    "${widget.exercise['duration_min']?.toStringAsFixed(0) ?? '0'} minutes",
                   ),
-                  _buildInfoRow(
-                    Icons.local_fire_department,
-                    "Calories Burned",
-                    "${exercise['nf_calories']} kcal",
-                  ),
-                  _buildInfoRow(
-                    Icons.speed,
-                    "MET",
-                    "${exercise['met']}",
-                  ),
-                  _buildInfoRow(
-                    Icons.info_outline,
-                    "User Input",
-                    "${exercise['user_input']}",
-                  ),
-                  _buildInfoRow(
-                    Icons.code,
-                    "Compendium Code",
-                    "${exercise['compendium_code']}",
-                  ),
-                  const Divider(height: 32),
-                  _buildCalorieEfficiencySection(caloriesPerMinute),
+                  const Divider(),
+                  _buildStatsSection(),
                 ],
               ),
             ),
@@ -118,34 +187,19 @@ class ExerciseResponseCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade100,
-              borderRadius: BorderRadius.circular(8),
+          Icon(icon, color: Colors.blue.shade700),
+          SizedBox(width: 8),
+          Text(
+            "$label: ",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
-            child: Icon(icon, color: Colors.blue.shade700),
           ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
             ),
           ),
         ],
@@ -153,72 +207,121 @@ class ExerciseResponseCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCalorieEfficiencySection(double caloriesPerMinute) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Exercise Efficiency",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue[800],
+  Widget _buildStatsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(height: 12),
+        Row(
+          children: [
+            _buildStatCircle(
+              "Calories",
+              "${widget.exercise['nf_calories']?.toStringAsFixed(0) ?? '0'}",
+              "burned",
+              Colors.orange,
             ),
-          ),
-          SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            _buildStatCircle(
+              "Duration",
+              "${widget.exercise['duration_min']?.toStringAsFixed(0) ?? '0'}",
+              "minutes",
+              Colors.blue,
+            ),
+            _buildStatCircle(
+              "MET",
+              "${widget.exercise['met']?.toStringAsFixed(1) ?? '0'}",
+              "value",
+              Colors.purple,
+            ),
+          ],
+        ),
+        SizedBox(height: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              child: ElevatedButton.icon(
+                onPressed: _isAdding || _isAdded ? null : _addExerciseItem,
+                icon: _isAdding
+                    ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : _isAdded
+                    ? Icon(Icons.check, color: Colors.white)
+                    : Icon(Icons.add, color: Colors.white),
+                label: Text(
+                  _isAdding
+                      ? 'Adding...'
+                      : _isAdded
+                      ? 'Added!'
+                      : 'Add exercise',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isAdded
+                      ? Colors.green[600]
+                      : Color(0xFF06402B),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget _buildStatCircle(String label, String value, String unit, Color color) {
+    return Expanded(
+      child: Column(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withOpacity(0.15),
+              border: Border.all(color: color, width: 2),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    "Calories per minute",
+                    value,
                     style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue[700],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: color.withOpacity(0.8),
                     ),
                   ),
-                  SizedBox(height: 4),
                   Text(
-                    "${caloriesPerMinute.toStringAsFixed(2)} kcal/min",
+                    unit,
                     style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 10,
+                      color: color.withOpacity(0.8),
                     ),
                   ),
                 ],
               ),
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withOpacity(0.2),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.local_fire_department,
-                    color: Colors.orange,
-                    size: 32,
-                  ),
-                ),
-              ),
-            ],
+            ),
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ],
       ),

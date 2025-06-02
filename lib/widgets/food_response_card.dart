@@ -1,9 +1,87 @@
 import 'package:flutter/material.dart';
 
-class FoodResponseCard extends StatelessWidget {
+import '../services/food_service.dart';
+
+class FoodResponseCard extends StatefulWidget {
   final Map<String, dynamic> food;
 
   const FoodResponseCard({super.key, required this.food});
+
+  @override
+  State<FoodResponseCard> createState() => _FoodResponseCardState();
+}
+
+class _FoodResponseCardState extends State<FoodResponseCard> {
+  final FoodService _foodService = FoodService();
+  bool _isAdding = false;
+  bool _isAdded = false;
+
+  Future<void> _addFoodItem() async {
+    setState(() {
+      _isAdding = true;
+    });
+
+    try {
+      await _foodService.addFoodItem(widget.food);
+
+      setState(() {
+        _isAdded = true;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                SizedBox(width: 8),
+                Text('${widget.food['food_name']} added to your intake!'),
+              ],
+            ),
+            backgroundColor: Color(0xFF06402B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+
+      // Reset the added state after 3 seconds
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          setState(() {
+            _isAdded = false;
+          });
+        }
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                SizedBox(width: 8),
+                Text('Failed to add item: ${e.toString()}'),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAdding = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +118,7 @@ class FoodResponseCard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        food['food_name']?.toString().toUpperCase() ?? 'FOOD ITEM',
+                        widget.food['food_name']?.toString().toUpperCase() ?? 'FOOD ITEM',
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -49,7 +127,7 @@ class FoodResponseCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (food['photo'] != null)
+                  if (widget.food['photo'] != null)
                     Container(
                       width: 120,
                       height: 120,
@@ -58,7 +136,7 @@ class FoodResponseCard extends StatelessWidget {
                           topRight: Radius.circular(16),
                         ),
                         image: DecorationImage(
-                          image: NetworkImage(food['photo']['thumb']),
+                          image: NetworkImage(widget.food['photo']['thumb']),
                           fit: BoxFit.cover,
                         ),
                       ),
@@ -76,7 +154,7 @@ class FoodResponseCard extends StatelessWidget {
                   _buildInfoRow(
                     Icons.food_bank,
                     "Quantity",
-                    "${food['serving_qty']} ${food['serving_unit']}",
+                    "${widget.food['serving_qty']} ${widget.food['serving_unit']}",
                   ),
                   const Divider(),
                   _buildNutrientSection(),
@@ -123,25 +201,25 @@ class FoodResponseCard extends StatelessWidget {
           children: [
             _buildNutrientCircle(
               "Calories",
-              "${food['nf_calories']}",
+              "${widget.food['nf_calories']?.toStringAsFixed(0) ?? '0'}",
               "kcal",
               Colors.orange,
             ),
             _buildNutrientCircle(
               "Protein",
-              "${food['nf_protein']}",
+              "${widget.food['nf_protein']?.toStringAsFixed(1) ?? '0'}",
               "grams",
               Colors.purple,
             ),
             _buildNutrientCircle(
               "Carbs",
-              "${food['nf_total_carbohydrate']}",
+              "${widget.food['nf_total_carbohydrate']?.toStringAsFixed(1) ?? '0'}",
               "grams",
               Colors.blue,
             ),
             _buildNutrientCircle(
               "Fat",
-              "${food['nf_total_fat']}",
+              "${widget.food['nf_total_fat']?.toStringAsFixed(1) ?? '0'}",
               "grams",
               Colors.red,
             ),
@@ -151,15 +229,44 @@ class FoodResponseCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-          ElevatedButton(onPressed: (){
-
-          },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF06402B),
-                foregroundColor: Colors.white,
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              child: ElevatedButton.icon(
+                onPressed: _isAdding || _isAdded ? null : _addFoodItem,
+                icon: _isAdding
+                    ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+                    : _isAdded
+                    ? Icon(Icons.check, color: Colors.white)
+                    : Icon(Icons.add, color: Colors.white),
+                label: Text(
+                  _isAdding
+                      ? 'Adding...'
+                      : _isAdded
+                      ? 'Added!'
+                      : 'Add item',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isAdded
+                      ? Colors.green[600]
+                      : Color(0xFF06402B),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
               ),
-              child: Text('Add item', style: TextStyle(color: Colors.white),)),
-        ],)
+            ),
+          ],
+        )
       ],
     );
   }

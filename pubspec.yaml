@@ -17,8 +17,10 @@ dependencies:
   cloud_firestore: ^5.6.0
   # Google Sign-In
   google_sign_in: ^6.2.1
+  percent_indicator: ^4.2.5
+  shared_preferences: ^2.3.2
 
-  # For phone number input formatting
+
   intl: ^0.18.0
 
   # HTTP requests
