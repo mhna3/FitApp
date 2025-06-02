@@ -23,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   late TextEditingController _heightController;
   late TextEditingController _weightController;
   late TextEditingController _calorieGoalController;
+  late TextEditingController _caloriesBurnedGoalController;  // NEW: Calories out goal
   late TextEditingController _targetWeightController;
   late TextEditingController _workoutDaysController;
   late TextEditingController _stepGoalController;
@@ -41,6 +42,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     _heightController = TextEditingController();
     _weightController = TextEditingController();
     _calorieGoalController = TextEditingController();
+    _caloriesBurnedGoalController = TextEditingController();  // NEW
     _targetWeightController = TextEditingController();
     _workoutDaysController = TextEditingController();
     _stepGoalController = TextEditingController();
@@ -53,6 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     _heightController.dispose();
     _weightController.dispose();
     _calorieGoalController.dispose();
+    _caloriesBurnedGoalController.dispose();  // NEW
     _targetWeightController.dispose();
     _workoutDaysController.dispose();
     _stepGoalController.dispose();
@@ -74,6 +77,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           _heightController.text = profile['height']?.toString() ?? '';
           _weightController.text = profile['weight']?.toString() ?? '';
           _calorieGoalController.text = profile['dailyCalorieGoal']?.toString() ?? '2000';
+          _caloriesBurnedGoalController.text = profile['dailyCaloriesBurnedGoal']?.toString() ?? '300';  // NEW
           _targetWeightController.text = profile['targetWeight']?.toString() ?? '';
           _workoutDaysController.text = profile['workoutDaysPerWeek']?.toString() ?? '3';
           _stepGoalController.text = profile['dailyStepGoal']?.toString() ?? '10000';
@@ -112,6 +116,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
         'height': _heightController.text.trim(),
         'weight': _weightController.text.trim(),
         'dailyCalorieGoal': _calorieGoalController.text.trim(),
+        'dailyCaloriesBurnedGoal': _caloriesBurnedGoalController.text.trim(),  // NEW
         'targetWeight': _targetWeightController.text.trim(),
         'workoutDaysPerWeek': _workoutDaysController.text.trim(),
         'dailyStepGoal': _stepGoalController.text.trim(),
@@ -369,7 +374,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
               _buildSectionHeader("Fitness Goals"),
               _buildEditableField(
-                "Daily Calorie Goal",
+                "Daily Calorie Goal (Intake)",
                 _calorieGoalController,
                 icon: Icons.local_fire_department,
                 keyboardType: TextInputType.number,
@@ -380,6 +385,22 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                   final calories = int.tryParse(value!);
                   if (calories == null || calories < 1000 || calories > 5000) {
                     return 'Please enter a valid calorie goal (1000-5000)';
+                  }
+                  return null;
+                },
+              ),
+              _buildEditableField(
+                "Daily Calories Burned Goal",  // NEW FIELD
+                _caloriesBurnedGoalController,
+                icon: Icons.whatshot,
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value?.trim().isEmpty ?? true) {
+                    return 'Calories burned goal is required';
+                  }
+                  final calories = int.tryParse(value!);
+                  if (calories == null || calories < 100 || calories > 2000) {
+                    return 'Please enter a valid calories burned goal (100-2000)';
                   }
                   return null;
                 },

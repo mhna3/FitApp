@@ -31,8 +31,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   Map<String, double> _goalProgress = {};
   Map<String, double> _exerciseStats = {};
   Map<String, double> _exerciseProgress = {};
-  Map<String, String> _foodGoalDisplay = {};
-  Map<String, String> _exerciseGoalDisplay = {};
+  Map<String, double> _foodGoals = {};
+  Map<String, double> _exerciseGoals = {};
   List<Map<String, dynamic>> _recentExercises = [];
   FitnessClass? _nextClass;
   bool _isLoading = true;
@@ -60,13 +60,13 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
       // Load nutrition data
       final nutrients = await _foodService.getTodaysNutrients();
       final progress = await _foodService.calculateGoalProgress(nutrients);
-      final foodGoalDisplay = await _foodService.getGoalDisplayText();
+      final foodGoals = await _foodService.getUserGoals();
 
       // Load exercise data
       final exerciseStats = await _exerciseService.getTodaysExerciseStats();
       final exerciseProgress = await _exerciseService.calculateExerciseProgress(exerciseStats);
-      final exerciseGoalDisplay = await _exerciseService.getGoalDisplayText();
-      final recentExercises = await _exerciseService.getRecentExercises(); // FIXED: Updated method name
+      final exerciseGoals = await _exerciseService.getUserExerciseGoals();
+      final recentExercises = await _exerciseService.getRecentExercises();
 
       // Load next class
       final nextClass = await _getNextUpcomingClass();
@@ -77,8 +77,8 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           _goalProgress = progress;
           _exerciseStats = exerciseStats;
           _exerciseProgress = exerciseProgress;
-          _foodGoalDisplay = foodGoalDisplay;
-          _exerciseGoalDisplay = exerciseGoalDisplay;
+          _foodGoals = foodGoals;
+          _exerciseGoals = exerciseGoals;
           _recentExercises = recentExercises;
           _nextClass = nextClass;
           _isLoading = false;
@@ -96,11 +96,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
 
   Future<FitnessClass?> _getNextUpcomingClass() async {
     try {
-      // Get user's registered classes as a one-time fetch instead of stream
       final classesStream = _classesService.getUserRegisteredClasses();
       final classes = await classesStream.first;
 
-      // Filter for upcoming classes and get the earliest one
       final now = DateTime.now();
       final upcomingClasses = classes.where((c) => c.dateTime.isAfter(now)).toList();
 
@@ -121,11 +119,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   void _navigateToMyClasses() {
-    // Navigate to classes tab and switch to "My Classes" tab
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ClassesTabWithTab(initialTab: 1), // 1 for "My Classes" tab
+        builder: (context) => ClassesTabWithTab(initialTab: 1),
       ),
     );
   }
@@ -351,16 +348,12 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
     final difference = dateTime.difference(now);
 
     if (difference.inDays == 0) {
-      // Today
       return "Today at ${DateFormat('HH:mm').format(dateTime)}";
     } else if (difference.inDays == 1) {
-      // Tomorrow
       return "Tomorrow at ${DateFormat('HH:mm').format(dateTime)}";
     } else if (difference.inDays < 7) {
-      // This week
       return "${DateFormat('EEEE').format(dateTime)} at ${DateFormat('HH:mm').format(dateTime)}";
     } else {
-      // Full date
       return "${DateFormat('MMM dd').format(dateTime)} at ${DateFormat('HH:mm').format(dateTime)}";
     }
   }
@@ -387,10 +380,26 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem("Eaten", "${(_todaysNutrients['calories'] ?? 0).toInt()}", _foodGoalDisplay['calories'] ?? '2000 cal'),
-              _buildStatItem("Burned", "${(_exerciseStats['calories'] ?? 0).toInt()}", _exerciseGoalDisplay['caloriesBurned'] ?? '300 cal'),
-              _buildStatItem("Net", "${((_todaysNutrients['calories'] ?? 0) - (_exerciseStats['calories'] ?? 0)).toInt()}", "cal"),
-              _buildStatItem("Exercises", "${(_exerciseStats['exercises'] ?? 0).toInt()}", _exerciseGoalDisplay['exercises'] ?? '3'),
+              _buildStatItem(
+                  "Eaten",
+                  "${(_todaysNutrients['calories'] ?? 0).toInt()}",
+                  "${(_foodGoals['calories'] ?? 2000).toInt()} cal"
+              ),
+              _buildStatItem(
+                  "Burned",
+                  "${(_exerciseStats['calories'] ?? 0).toInt()}",
+                  "${(_exerciseGoals['caloriesBurned'] ?? 300).toInt()} cal"
+              ),
+              _buildStatItem(
+                  "Net",
+                  "${((_todaysNutrients['calories'] ?? 0) - (_exerciseStats['calories'] ?? 0)).toInt()}",
+                  "cal"
+              ),
+              _buildStatItem(
+                  "Exercises",
+                  "${(_exerciseStats['exercises'] ?? 0).toInt()}",
+                  "${(_exerciseGoals['exercises'] ?? 3).toInt()}"
+              ),
             ],
           ),
         ],

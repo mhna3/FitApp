@@ -1,4 +1,4 @@
-// lib/services/food_service.dart - Updated with User Goals Integration
+// lib/services/food_service.dart - Updated with Fixed Goal Handling
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';

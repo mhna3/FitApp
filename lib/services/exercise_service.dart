@@ -1,4 +1,4 @@
-// lib/services/exercise_service.dart - Fixed naming conflict
+// lib/services/exercise_service.dart - Fixed Goals Display
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -169,14 +169,14 @@ class ExerciseService {
     return items.take(3).toList(); // Return top 3 recent exercises
   }
 
-  // Get formatted goal display text
+  // Get formatted goal display text (FIXED to show proper values)
   Future<Map<String, String>> getGoalDisplayText() async {
     final goals = await getUserExerciseGoals();
 
     return {
       'caloriesBurned': '${goals['caloriesBurned']!.toInt()} cal',
       'duration': '${goals['duration']!.toInt()} min',
-      'exercises': '${goals['exercises']!.toInt()} exercises',
+      'exercises': '${goals['exercises']!.toInt()}',  // FIXED: Remove 'exercises' suffix
     };
   }
 

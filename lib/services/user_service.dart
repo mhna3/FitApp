@@ -1,4 +1,4 @@
-// lib/services/user_service.dart - Fixed timestamp handling
+// lib/services/user_service.dart - Updated with Calories Out Goal
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -45,6 +45,7 @@ class UserService {
       'height': '',
       'weight': '',
       'dailyCalorieGoal': '2000',
+      'dailyCaloriesBurnedGoal': '300',  // NEW: Default calories burned goal
       'targetWeight': '',
       'workoutDaysPerWeek': '3',
       'dailyStepGoal': '10000',
@@ -150,7 +151,7 @@ class UserService {
     };
   }
 
-  // Get user's exercise goals
+  // Get user's exercise goals (UPDATED to use actual user settings)
   Future<Map<String, double>> getUserExerciseGoals() async {
     final profile = await getUserProfile();
 
@@ -162,13 +163,18 @@ class UserService {
       };
     }
 
-    // Parse workout days to estimate daily exercise goals
+    // Parse goals from user profile
+    double caloriesBurnedGoal = double.tryParse(profile['dailyCaloriesBurnedGoal']?.toString() ?? '300') ?? 300;
     double workoutDays = double.tryParse(profile['workoutDaysPerWeek']?.toString() ?? '3') ?? 3;
 
+    // Calculate reasonable exercise goals
+    double dailyExerciseGoal = workoutDays > 0 ? workoutDays : 3; // At least 3 exercises if they work out
+    double durationGoal = (workoutDays * 60) / 7; // Total weekly minutes divided by 7 days
+
     return {
-      'caloriesBurned': 300,    // Base goal per day
-      'duration': 60,          // Base duration in minutes
-      'exercises': workoutDays / 7, // Average exercises per day based on weekly goal
+      'caloriesBurned': caloriesBurnedGoal,  // Use actual user goal
+      'duration': durationGoal.clamp(30, 120), // Between 30-120 minutes per day
+      'exercises': dailyExerciseGoal,        // Use workout days as exercise count goal
     };
   }
 
@@ -250,5 +256,21 @@ class UserService {
       }
       return null;
     });
+  }
+
+  // Get formatted goal display for UI
+  Future<Map<String, String>> getFormattedGoals() async {
+    final fitnessGoals = await getUserFitnessGoals();
+    final exerciseGoals = await getUserExerciseGoals();
+
+    return {
+      'dailyCalories': '${fitnessGoals['calories']!.toInt()} cal',
+      'dailyCaloriesBurned': '${exerciseGoals['caloriesBurned']!.toInt()} cal',
+      'protein': '${fitnessGoals['protein']!.toInt()}g',
+      'carbs': '${fitnessGoals['carbs']!.toInt()}g',
+      'fat': '${fitnessGoals['fat']!.toInt()}g',
+      'exercises': '${exerciseGoals['exercises']!.toInt()}',
+      'duration': '${exerciseGoals['duration']!.toInt()} min',
+    };
   }
 }
