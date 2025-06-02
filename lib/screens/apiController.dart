@@ -413,90 +413,123 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
   }
 
   Widget _buildAddedItemCard(Map<String, dynamic> item) {
-    return Card(
-      elevation: 4,
-      shadowColor: Colors.green.withOpacity(0.3),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-      child: Container(
+    return Dismissible(
+      key: ValueKey(item['id']),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: 20),
         decoration: BoxDecoration(
+          color: Colors.red[400],
           borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.green.shade50],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              // Food Image or Icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.green.shade100,
-                ),
-                child: item['photoUrl'] != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    item['photoUrl'],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.fastfood, color: Colors.green.shade700);
-                    },
-                  ),
-                )
-                    : Icon(Icons.fastfood, color: Colors.green.shade700),
-              ),
-
-              SizedBox(width: 12),
-
-              // Food Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item['foodName'] ?? 'Unknown Food',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Color(0xFF06402B),
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      "${item['servingQty']} ${item['servingUnit']}",
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        _buildNutrientChip("${item['calories']?.toStringAsFixed(0) ?? '0'} cal", Colors.orange),
-                        SizedBox(width: 8),
-                        _buildNutrientChip("${item['protein']?.toStringAsFixed(1) ?? '0'}g protein", Colors.purple),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Delete Button
-              IconButton(
-                onPressed: () => _showDeleteConfirmation(item),
-                icon: Icon(Icons.delete_outline, color: Colors.red[400]),
-                tooltip: 'Remove from intake',
-              ),
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (direction) async {
+        final shouldDelete = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Delete Item"),
+            content: Text("Are you sure you want to delete this food item?"),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text("Cancel")),
+              TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text("Delete")),
             ],
+          ),
+        );
+        if (shouldDelete == true) {
+          _showDeleteConfirmation(item);
+          return true;
+        }
+        return false;
+      },
+      child: Card(
+        elevation: 4,
+        shadowColor: Colors.green.withOpacity(0.3),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [Colors.green.shade50,Colors.green.shade50],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child:SizedBox( height: 100,
+          child:
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white,
+                  ),
+                  child: item['photoUrl'] != null
+                      ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      item['photoUrl'],
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.fastfood, color: Colors.green.shade700);
+                      },
+                    ),
+                  )
+                      : Icon(Icons.fastfood, color: Colors.green.shade700),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 12),
+                            Text(
+                              item['foodName'] ?? 'Unknown Food',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Color(0xFF06402B),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              "${item['servingQty']} ${item['servingUnit']}",
+                              style: TextStyle(
+                                color: Colors.grey[800],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          SizedBox(height: 12),
+                          _buildNutrientChip("${item['calories']?.toStringAsFixed(0) ?? '0'} cal", Colors.orange),
+                          SizedBox(height: 6),
+                          _buildNutrientChip("${item['protein']?.toStringAsFixed(1) ?? '0'}g protein", Colors.purple),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           ),
         ),
       ),
@@ -687,7 +720,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
                 labelText: 'e.g. 30 minutes cycling',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.blue.shade300),
+                  borderSide: BorderSide(color: Colors.green.shade300),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -699,7 +732,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
                   onPressed: () => _controller.clear(),
                 ),
                 filled: true,
-                fillColor: Colors.blue.shade50,
+                fillColor: Colors.green.shade50,
               ),
             ),
             const SizedBox(height: 16),
@@ -808,7 +841,37 @@ class _ExerciseTabState extends State<ExerciseTab> {
   }
 
   Widget _buildAddedExerciseCard(Map<String, dynamic> exercise) {
-    return Card(
+    return Dismissible(
+        key: Key(exercise['id'].toString()),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          alignment: Alignment.centerRight,
+          padding: EdgeInsets.only(right: 20),
+          decoration: BoxDecoration(
+            color: Colors.red[400],
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(Icons.delete, color: Colors.white),
+        ),
+        confirmDismiss: (direction) async {
+          final shouldDelete = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Delete Item"),
+              content: Text("Are you sure you want to delete this exercise?"),
+              actions: [
+                TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text("Cancel")),
+                TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text("Delete")),
+              ],
+            ),
+          );
+          if (shouldDelete == true) {
+            _showDeleteConfirmation(exercise);
+            return true;
+          }
+          return false;
+        },
+    child: Card(
       elevation: 4,
       shadowColor: Colors.blue.withOpacity(0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -817,12 +880,16 @@ class _ExerciseTabState extends State<ExerciseTab> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           gradient: LinearGradient(
-            colors: [Colors.white, Colors.blue.shade50],
+            colors: [Colors.white, Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
         ),
-        child: Padding(
+        child:
+         SizedBox(
+            height: 100,
+           child:
+         Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
@@ -855,6 +922,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    SizedBox(height: 12),
                     Text(
                       exercise['exerciseName'] ?? 'Unknown Exercise',
                       style: TextStyle(
@@ -865,7 +933,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 4),
+                    SizedBox(height: 6),
                     Text(
                       "${exercise['duration']} minutes",
                       style: TextStyle(
@@ -873,28 +941,24 @@ class _ExerciseTabState extends State<ExerciseTab> {
                         fontSize: 14,
                       ),
                     ),
-                    SizedBox(height: 8),
-                    Row(
+                    ],
+                ),
+              ),
+                    Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
+                        SizedBox(height: 12),
                         _buildExerciseChip("${exercise['calories']?.toStringAsFixed(0) ?? '0'} cal", Colors.orange),
-                        SizedBox(width: 8),
+                        SizedBox(height: 6),
                         _buildExerciseChip("${exercise['duration']?.toStringAsFixed(0) ?? '0'} min", Colors.blue),
                       ],
                     ),
                   ],
                 ),
               ),
-
-              // Delete Button
-              IconButton(
-                onPressed: () => _showDeleteConfirmation(exercise),
-                icon: Icon(Icons.delete_outline, color: Colors.red[400]),
-                tooltip: 'Remove from workout',
-              ),
-            ],
           ),
         ),
-      ),
+    ),
     );
   }
 

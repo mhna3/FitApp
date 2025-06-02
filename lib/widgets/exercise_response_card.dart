@@ -93,7 +93,7 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [Colors.white, Colors.blue.shade50],
+            colors: [Colors.white, Colors.green.shade50],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -105,7 +105,7 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
             Container(
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.blue.shade100,
+                color: Colors.green.shade100,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
@@ -119,9 +119,10 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
                       child: Text(
                         widget.exercise['name']?.toString().toUpperCase() ?? 'EXERCISE',
                         style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
+                          fontSize: 26,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF06402B),
+                          letterSpacing: 1.2,
                         ),
                       ),
                     ),
@@ -148,7 +149,7 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
                         borderRadius: BorderRadius.only(
                           topRight: Radius.circular(16),
                         ),
-                        color: Colors.blue.shade200,
+                        color: Color(0xFF06402B),
                       ),
                       child: Icon(
                         Icons.fitness_center,
@@ -171,7 +172,14 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
                     "Duration",
                     "${widget.exercise['duration_min']?.toStringAsFixed(0) ?? '0'} minutes",
                   ),
-                  const Divider(),
+                  Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.grey.shade300, Colors.transparent],
+                      ),
+                    ),
+                  ),
                   _buildStatsSection(),
                 ],
               ),
@@ -187,7 +195,7 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue.shade700),
+          Icon(icon, color: Color(0xFF06402B)),
           SizedBox(width: 8),
           Text(
             "$label: ",

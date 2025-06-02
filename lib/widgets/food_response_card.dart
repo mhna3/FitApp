@@ -117,14 +117,16 @@ class _FoodResponseCardState extends State<FoodResponseCard> {
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Text(
-                        widget.food['food_name']?.toString().toUpperCase() ?? 'FOOD ITEM',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.green[800],
+                      child:
+                        Text(
+                          widget.food['food_name']?.toString().toUpperCase() ?? 'FOOD ITEM',
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF06402B),
+                            letterSpacing: 1.2,
+                          ),
                         ),
-                      ),
                     ),
                   ),
                   if (widget.food['photo'] != null)
@@ -156,7 +158,14 @@ class _FoodResponseCardState extends State<FoodResponseCard> {
                     "Quantity",
                     "${widget.food['serving_qty']} ${widget.food['serving_unit']}",
                   ),
-                  const Divider(),
+                  Container(
+                    height: 1,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.transparent, Colors.grey.shade300, Colors.transparent],
+                      ),
+                    ),
+                  ),
                   _buildNutrientSection(),
                 ],
               ),

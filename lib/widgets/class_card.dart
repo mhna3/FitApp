@@ -34,7 +34,7 @@ class ClassCard extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
-            colors: [Colors.white, Color(0xFF06402B).withOpacity(0.05)],
+            colors: [Colors.white, Colors.white],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -43,7 +43,7 @@ class ClassCard extends StatelessWidget {
           children: [
             // Header with image/icon and basic info
             Container(
-              height: 120,
+              height: 125,
               decoration: BoxDecoration(
                 color: _getCategoryColor().withOpacity(0.1),
                 borderRadius: BorderRadius.only(
@@ -57,8 +57,8 @@ class ClassCard extends StatelessWidget {
                     children: [
                       // Image or Category Icon
                       Container(
-                        width: 120,
-                        height: 120,
+                        width: 125,
+                        height: 125,
                         decoration: BoxDecoration(
                           color: _getCategoryColor().withOpacity(0.2),
                           borderRadius: BorderRadius.only(
@@ -100,7 +100,7 @@ class ClassCard extends StatelessWidget {
                               Text(
                                 fitnessClass.title,
                                 style: TextStyle(
-                                  fontSize: 20,
+                                  fontSize: 22,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF06402B),
                                 ),
@@ -254,7 +254,7 @@ class ClassCard extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
           color: color,
         ),
@@ -273,7 +273,7 @@ class ClassCard extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 12,
           fontWeight: FontWeight.bold,
           color: Colors.white,
         ),
