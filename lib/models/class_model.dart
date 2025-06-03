@@ -1,16 +1,15 @@
-// lib/models/class_model.dart
 class FitnessClass {
   final String id;
   final String title;
   final String description;
   final String instructor;
   final DateTime dateTime;
-  final int duration; // in minutes
+  final int duration;
   final int maxCapacity;
   final List<String> registeredUsers;
   final String location;
-  final String difficulty; // Beginner, Intermediate, Advanced
-  final String category; // Yoga, Cardio, Strength, etc.
+  final String difficulty;
+  final String category;
   final String imageUrl;
   final DateTime createdAt;
   final bool isActive;
@@ -32,7 +31,7 @@ class FitnessClass {
     this.isActive = true,
   });
 
-  // Convert to Map for Firestore
+
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -52,7 +51,6 @@ class FitnessClass {
     };
   }
 
-  // Create from Firestore Map
   factory FitnessClass.fromMap(Map<String, dynamic> map) {
     return FitnessClass(
       id: map['id'] ?? '',
@@ -72,13 +70,11 @@ class FitnessClass {
     );
   }
 
-  // Getters for computed properties
   bool get isFull => registeredUsers.length >= maxCapacity;
   int get availableSpots => maxCapacity - registeredUsers.length;
   bool get isUpcoming => dateTime.isAfter(DateTime.now());
   bool Function(Object? element) get isUserRegistered => registeredUsers.contains;
 
-  // Copy with method for updates
   FitnessClass copyWith({
     String? id,
     String? title,

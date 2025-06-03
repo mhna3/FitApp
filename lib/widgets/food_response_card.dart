@@ -47,7 +47,6 @@ class _FoodResponseCardState extends State<FoodResponseCard> {
         );
       }
 
-      // Reset the added state after 3 seconds
       Future.delayed(Duration(seconds: 3), () {
         if (mounted) {
           setState(() {
@@ -102,7 +101,6 @@ class _FoodResponseCardState extends State<FoodResponseCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with image
             Container(
               height: 120,
               decoration: BoxDecoration(
@@ -147,7 +145,6 @@ class _FoodResponseCardState extends State<FoodResponseCard> {
               ),
             ),
 
-            // Nutritional information
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

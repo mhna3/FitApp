@@ -46,7 +46,6 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
         );
       }
 
-      // Reset the added state after 3 seconds
       Future.delayed(Duration(seconds: 3), () {
         if (mounted) {
           setState(() {
@@ -101,7 +100,6 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with image
             Container(
               height: 120,
               decoration: BoxDecoration(
@@ -127,21 +125,6 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
                       ),
                     ),
                   ),
-                  if (widget.exercise['photo'] != null)
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(16),
-                        ),
-                        image: DecorationImage(
-                          image: NetworkImage(widget.exercise['photo']['thumb']),
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    )
-                  else
                     Container(
                       width: 120,
                       height: 120,
@@ -154,14 +137,13 @@ class _ExerciseResponseCardState extends State<ExerciseResponseCard> {
                       child: Icon(
                         Icons.fitness_center,
                         size: 48,
-                        color: Colors.blue[800],
+                        color: Colors.white,
                       ),
                     ),
                 ],
               ),
             ),
 
-            // Exercise information
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(

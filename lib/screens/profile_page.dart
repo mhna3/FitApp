@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fit_app/screens/login.dart';
-import '../services/nutritionix_api.dart';
 import '../services/food_service.dart';
 import '../services/exercise_service.dart';
 import '../services/classes_service.dart';
 import '../models/class_model.dart';
-import '../widgets/exercise_response_card.dart';
-import '../widgets/food_response_card.dart';
 import 'classes_tab.dart';
-import '../screens/profile_page.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import '../screens/settings.dart';
 import 'package:intl/intl.dart';
@@ -57,18 +52,15 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
         _isLoading = true;
       });
 
-      // Load nutrition data
       final nutrients = await _foodService.getTodaysNutrients();
       final progress = await _foodService.calculateGoalProgress(nutrients);
       final foodGoals = await _foodService.getUserGoals();
 
-      // Load exercise data
       final exerciseStats = await _exerciseService.getTodaysExerciseStats();
       final exerciseProgress = await _exerciseService.calculateExerciseProgress(exerciseStats);
       final exerciseGoals = await _exerciseService.getUserExerciseGoals();
       final recentExercises = await _exerciseService.getRecentExercises();
 
-      // Load next class
       final nextClass = await _getNextUpcomingClass();
 
       if (mounted) {
@@ -168,7 +160,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
             children: [
               SizedBox(height: 24),
 
-              // Daily Goals Card
               Card(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -213,13 +204,9 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
               ),
 
               SizedBox(height: 24),
-
-              // Next Class Card - Now Dynamic and Clickable
               _buildNextClassCard(),
-
               SizedBox(height: 24),
 
-              // Detailed Nutrients Card
               Card(
                 color: Colors.white,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -474,7 +461,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
           CircularPercentIndicator(
             radius: 40.0,
             lineWidth: 6.0,
-            percent: 0.75, // This could be calculated based on goals
+            percent: 0.75,
             center: Text("${amount.toStringAsFixed(0)}g"),
             progressColor: color,
             backgroundColor: Colors.grey.shade300,
@@ -546,7 +533,6 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 }
 
-// Create a wrapper for ClassesTab that allows setting initial tab
 class ClassesTabWithTab extends StatelessWidget {
   final int initialTab;
 
@@ -554,7 +540,7 @@ class ClassesTabWithTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClassesTabPage(initialTab: initialTab);
+    return ClassesTab(initialTab: initialTab);
   }
 }
 

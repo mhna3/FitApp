@@ -1,4 +1,3 @@
-// lib/screens/add_edit_class.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/class_model.dart';
@@ -583,12 +582,13 @@ class _AddEditClassScreenState extends State<AddEditClassScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: Text('Delete Class'),
         content: Text('Are you sure you want to delete this class? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'),
+            child: Text('Cancel', style: TextStyle(color: Colors.grey[700]),),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),

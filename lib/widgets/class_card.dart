@@ -1,4 +1,3 @@
-// lib/widgets/class_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/class_model.dart';
@@ -41,7 +40,6 @@ class ClassCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Header with image/icon and basic info
             Container(
               height: 125,
               decoration: BoxDecoration(
@@ -55,7 +53,6 @@ class ClassCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      // Image or Category Icon
                       Container(
                         width: 125,
                         height: 125,
@@ -89,7 +86,6 @@ class ClassCard extends StatelessWidget {
                         ),
                       ),
 
-                      // Class Info
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -137,7 +133,6 @@ class ClassCard extends StatelessWidget {
                     ],
                   ),
 
-                  // Badges
                   Positioned(
                     top: 8,
                     right: 8,
@@ -156,13 +151,11 @@ class ClassCard extends StatelessWidget {
               ),
             ),
 
-            // Details Section
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Description
                   if (fitnessClass.description.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -178,7 +171,6 @@ class ClassCard extends StatelessWidget {
                       ),
                     ),
 
-                  // Date, Time, Duration
                   Row(
                     children: [
                       _buildInfoItem(
@@ -200,7 +192,6 @@ class ClassCard extends StatelessWidget {
 
                   SizedBox(height: 12),
 
-                  // Location and Capacity
                   Row(
                     children: [
                       _buildInfoItem(
@@ -217,7 +208,6 @@ class ClassCard extends StatelessWidget {
 
                   SizedBox(height: 16),
 
-                  // Action Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(

@@ -119,7 +119,6 @@ class _SignUpPageState extends State<SignUpWidget> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -128,11 +127,9 @@ class _SignUpPageState extends State<SignUpWidget> {
               ),
             ),
           ),
-          // Overlay with opacity
           Container(
             color: Colors.white.withOpacity(0.7),
           ),
-          // Your existing content
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(

@@ -46,7 +46,6 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Color(0xFF06402B),
           ),
         );
-        // Navigation will be handled automatically by AuthWrapper
       }
     } on FirebaseAuthException catch (e) {
       print("FirebaseAuthException during login: ${e.code} - ${e.message}");
@@ -90,7 +89,6 @@ class _LoginPageState extends State<LoginPage> {
       print("General exception during login: $e");
 
       if (mounted) {
-        // Check if user actually got logged in despite the error
         final currentUser = FirebaseAuth.instance.currentUser;
         if (currentUser != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -132,7 +130,6 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Color(0xFF06402B),
           ),
         );
-        // Navigation will be handled automatically by AuthWrapper
       }
     } on FirebaseAuthException catch (e) {
       print("FirebaseAuthException during Google sign-in: ${e.code} - ${e.message}");
@@ -164,7 +161,6 @@ class _LoginPageState extends State<LoginPage> {
       print("General exception during Google sign-in: $e");
 
       if (mounted) {
-        // Check if user actually got logged in despite the error
         final currentUser = FirebaseAuth.instance.currentUser;
         if (currentUser != null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -229,7 +225,6 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // Background image
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -238,11 +233,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          // Overlay with opacity
           Container(
             color: Colors.white.withOpacity(0.7),
           ),
-          // Your existing content
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -270,8 +263,6 @@ class _LoginPageState extends State<LoginPage> {
                               color: Color(0xFF06402B)),
                         ),
                         SizedBox(height: 20),
-
-                        // Email/Password Section
                         Padding(
                           padding: EdgeInsets.only(bottom: 20),
                           child: _buildTextField(
@@ -312,8 +303,6 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                         SizedBox(height: 10),
-
-                        // Email Login Button
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -331,7 +320,6 @@ class _LoginPageState extends State<LoginPage> {
 
                         SizedBox(height: 20),
 
-                        // Divider
                         Row(
                           children: [
                             Expanded(child: Divider(color: Colors.grey)),
@@ -346,7 +334,6 @@ class _LoginPageState extends State<LoginPage> {
 
                         SizedBox(height: 20),
 
-                        // Google Sign-In Button
                         OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -383,7 +370,6 @@ class _LoginPageState extends State<LoginPage> {
 
                         SizedBox(height: 20),
 
-                        // Sign Up Link
                         TextButton(
                           onPressed: () {
                             Navigator.push(

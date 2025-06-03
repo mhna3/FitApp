@@ -1,4 +1,3 @@
-// lib/screens/admin_panel.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/class_model.dart';
@@ -17,7 +16,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -31,15 +30,18 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: Text('Admin Panel'),
+        title: Text('Admin Panel', style: TextStyle(fontWeight: FontWeight.bold),),
+        centerTitle: true,
         backgroundColor: Color(0xFF06402B),
         foregroundColor: Colors.white,
         bottom: TabBar(
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white70,
           controller: _tabController,
           indicatorColor: Colors.white,
           tabs: [
-            Tab(text: 'Manage Classes', icon: Icon(Icons.list)),
-            Tab(text: 'Analytics', icon: Icon(Icons.analytics)),
+            Tab(text: 'Manage Classes', icon: Icon(Icons.list, color: Colors.white)),
+            Tab(text: 'Analytics', icon: Icon(Icons.analytics, color: Colors.white)),
           ],
         ),
       ),
@@ -142,6 +144,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
     final isPastClass = !fitnessClass.isUpcoming;
 
     return Card(
+      color: Colors.white,
       elevation: 4,
       margin: EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -178,6 +181,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
                   ),
                 ),
                 PopupMenuButton<String>(
+                  color: Colors.white,
                   onSelected: (value) => _handleMenuAction(value, fitnessClass),
                   itemBuilder: (context) => [
                     PopupMenuItem(
@@ -217,7 +221,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
 
             SizedBox(height: 12),
 
-            // Status indicators
+
             Row(
               children: [
                 _buildStatusChip(
@@ -327,7 +331,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
               Text(
                 'Class Analytics',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF06402B),
                 ),
@@ -369,7 +373,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
               Text(
                 'Popular Categories',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF06402B),
                 ),
@@ -386,6 +390,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
 
   Widget _buildAnalyticsCard(String title, String value, IconData icon, Color color) {
     return Card(
+      color: Colors.white,
       elevation: 4,
       margin: EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -441,6 +446,7 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
 
     return sortedCategories.map((entry) {
       return Card(
+        color: Colors.white,
         elevation: 2,
         margin: EdgeInsets.only(bottom: 8),
         child: ListTile(
@@ -482,10 +488,10 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
 
   void _duplicateClass(FitnessClass fitnessClass) {
     final duplicatedClass = fitnessClass.copyWith(
-      id: '', // Will be set by Firestore
+      id: '',
       title: '${fitnessClass.title} (Copy)',
-      dateTime: fitnessClass.dateTime.add(Duration(days: 7)), // Next week
-      registeredUsers: [], // Empty for new class
+      dateTime: fitnessClass.dateTime.add(Duration(days: 7)),
+      registeredUsers: [],
       createdAt: DateTime.now(),
     );
 
@@ -501,17 +507,18 @@ class _AdminPanelState extends State<AdminPanel> with SingleTickerProviderStateM
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
         title: Text('Delete Class'),
         content: Text('Are you sure you want to delete "${fitnessClass.title}"? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Cancel'),
+            child: Text('Cancel',style: TextStyle(color: Colors.grey[700])),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text('Delete'),
+            child: Text('Delete',),
           ),
         ],
       ),

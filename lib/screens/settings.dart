@@ -17,13 +17,12 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
   bool _isLoading = true;
   bool _isSaving = false;
 
-  // Controllers for form fields
   late TextEditingController _emailController;
   late TextEditingController _ageController;
   late TextEditingController _heightController;
   late TextEditingController _weightController;
   late TextEditingController _calorieGoalController;
-  late TextEditingController _caloriesBurnedGoalController;  // NEW: Calories out goal
+  late TextEditingController _caloriesBurnedGoalController;
   late TextEditingController _targetWeightController;
   late TextEditingController _workoutDaysController;
   late TextEditingController _stepGoalController;
@@ -42,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     _heightController = TextEditingController();
     _weightController = TextEditingController();
     _calorieGoalController = TextEditingController();
-    _caloriesBurnedGoalController = TextEditingController();  // NEW
+    _caloriesBurnedGoalController = TextEditingController();
     _targetWeightController = TextEditingController();
     _workoutDaysController = TextEditingController();
     _stepGoalController = TextEditingController();
@@ -55,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     _heightController.dispose();
     _weightController.dispose();
     _calorieGoalController.dispose();
-    _caloriesBurnedGoalController.dispose();  // NEW
+    _caloriesBurnedGoalController.dispose();
     _targetWeightController.dispose();
     _workoutDaysController.dispose();
     _stepGoalController.dispose();
@@ -77,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           _heightController.text = profile['height']?.toString() ?? '';
           _weightController.text = profile['weight']?.toString() ?? '';
           _calorieGoalController.text = profile['dailyCalorieGoal']?.toString() ?? '2000';
-          _caloriesBurnedGoalController.text = profile['dailyCaloriesBurnedGoal']?.toString() ?? '300';  // NEW
+          _caloriesBurnedGoalController.text = profile['dailyCaloriesBurnedGoal']?.toString() ?? '300';
           _targetWeightController.text = profile['targetWeight']?.toString() ?? '';
           _workoutDaysController.text = profile['workoutDaysPerWeek']?.toString() ?? '3';
           _stepGoalController.text = profile['dailyStepGoal']?.toString() ?? '10000';
@@ -109,20 +108,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
     });
 
     try {
-      // Prepare profile data
       final profileData = {
         'email': _emailController.text.trim(),
         'age': _ageController.text.trim(),
         'height': _heightController.text.trim(),
         'weight': _weightController.text.trim(),
         'dailyCalorieGoal': _calorieGoalController.text.trim(),
-        'dailyCaloriesBurnedGoal': _caloriesBurnedGoalController.text.trim(),  // NEW
+        'dailyCaloriesBurnedGoal': _caloriesBurnedGoalController.text.trim(),
         'targetWeight': _targetWeightController.text.trim(),
         'workoutDaysPerWeek': _workoutDaysController.text.trim(),
         'dailyStepGoal': _stepGoalController.text.trim(),
       };
 
-      // Save to Firestore
       final success = await _userService.saveUserProfile(profileData);
 
       if (success && mounted) {
@@ -140,7 +137,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
           ),
         );
 
-        // Calculate and show BMI if available
         final bmi = await _userService.calculateBMI();
         if (bmi != null && mounted) {
           _showBMIDialog(bmi);
@@ -316,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 "Email",
                 _emailController,
                 icon: Icons.email,
-                enabled: false, // Email can't be changed here
+                enabled: false,
                 validator: (value) {
                   if (value?.trim().isEmpty ?? true) {
                     return 'Email is required';
@@ -390,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                 },
               ),
               _buildEditableField(
-                "Daily Calories Burned Goal",  // NEW FIELD
+                "Daily Calories Burned Goal",
                 _caloriesBurnedGoalController,
                 icon: Icons.whatshot,
                 keyboardType: TextInputType.number,
@@ -455,7 +451,6 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
 
               SizedBox(height: 32),
 
-              // Save Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -493,17 +488,18 @@ class _SettingsScreenState extends State<SettingsScreen> with SingleTickerProvid
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
+                          backgroundColor: Colors.white,
                           title: Text('Logout'),
                           content: Text('Are you sure you want to logout?'),
                           actions: [
                             TextButton(
-                              child: Text('Cancel'),
+                              child: Text('Cancel', style: TextStyle(color: Colors.grey[700]),),
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
                             ),
                             TextButton(
-                              child: Text('Logout'),
+                              child: Text('Logout', style: TextStyle(color: Colors.red),),
                               onPressed: () {
                                 Navigator.of(context).pop();
                                 _signOut();

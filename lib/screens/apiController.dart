@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // Changed from 2 to 3
+    _tabController = TabController(length: 3, vsync: this);
     currentUser = _auth.currentUser;
 
     _pages.addAll([
@@ -157,7 +157,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 }
 
-// This replaces the NaturalNutrientsTab in apiController.dart
 
 class NaturalNutrientsTab extends StatefulWidget {
   final NutritionixApi api;
@@ -232,7 +231,7 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
   Future<void> _deleteItem(String itemId) async {
     try {
       await _foodService.deleteFoodItem(itemId);
-      await _loadTodaysItems(); // Refresh the list
+      await _loadTodaysItems();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -285,7 +284,6 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Search Section
             TextField(
               controller: _controller,
               decoration: InputDecoration(
@@ -354,7 +352,6 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Recently Added Items Section
                     if (_todaysAddedItems.isNotEmpty) ...[
                       _buildSectionHeader("Today's Added Items", _todaysAddedItems.length),
                       SizedBox(height: 8),
@@ -362,7 +359,6 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
                       SizedBox(height: 24),
                     ],
 
-                    // Search Results Section
                     if (_foods.isNotEmpty) ...[
                       _buildSectionHeader("Search Results", _foods.length),
                       SizedBox(height: 8),
@@ -450,12 +446,8 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
         child: Container(
           decoration: BoxDecoration(
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            gradient: LinearGradient(
-              colors: [Colors.green.shade50,Colors.green.shade50],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
           ),
           child:SizedBox( height: 100,
           child:
@@ -495,10 +487,10 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
                           children: [
                             SizedBox(height: 12),
                             Text(
-                              item['foodName'] ?? 'Unknown Food',
+                              capitalize(item['foodName'] ?? 'Unknown Food'),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 18,
                                 color: Color(0xFF06402B),
                               ),
                               maxLines: 2,
@@ -578,6 +570,10 @@ class _NaturalNutrientsTabState extends State<NaturalNutrientsTab> {
         );
       },
     );
+  }
+  String capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
   }
 }
 
@@ -660,7 +656,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
   Future<void> _deleteExercise(String itemId) async {
     try {
       await _exerciseService.deleteExerciseItem(itemId);
-      await _loadTodaysExercises(); // Refresh the list
+      await _loadTodaysExercises();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -713,7 +709,6 @@ class _ExerciseTabState extends State<ExerciseTab> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Search Section
             TextField(
               controller: _controller,
               decoration: InputDecoration(
@@ -782,7 +777,6 @@ class _ExerciseTabState extends State<ExerciseTab> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Recently Added Exercises Section
                     if (_todaysAddedExercises.isNotEmpty) ...[
                       _buildSectionHeader("Today's Workout", _todaysAddedExercises.length),
                       SizedBox(height: 8),
@@ -790,7 +784,6 @@ class _ExerciseTabState extends State<ExerciseTab> {
                       SizedBox(height: 24),
                     ],
 
-                    // Search Results Section
                     if (_exercises.isNotEmpty) ...[
                       _buildSectionHeader("Search Results", _exercises.length),
                       SizedBox(height: 8),
@@ -878,12 +871,8 @@ class _ExerciseTabState extends State<ExerciseTab> {
       margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
       child: Container(
         decoration: BoxDecoration(
+          color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          gradient: LinearGradient(
-            colors: [Colors.white, Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
         ),
         child:
          SizedBox(
@@ -893,41 +882,17 @@ class _ExerciseTabState extends State<ExerciseTab> {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              // Exercise Image or Icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Colors.blue.shade100,
-                ),
-                child: exercise['photoUrl'] != null
-                    ? ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    exercise['photoUrl'],
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Icon(Icons.fitness_center, color: Colors.blue.shade700);
-                    },
-                  ),
-                )
-                    : Icon(Icons.fitness_center, color: Colors.blue.shade700),
-              ),
-
               SizedBox(width: 12),
-
-              // Exercise Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 12),
                     Text(
-                      exercise['exerciseName'] ?? 'Unknown Exercise',
+                      capitalize(exercise['exerciseName'] ?? 'Unknown Exercise'),
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                        fontSize: 18,
                         color: Color(0xFF06402B),
                       ),
                       maxLines: 2,
@@ -938,7 +903,7 @@ class _ExerciseTabState extends State<ExerciseTab> {
                       "${exercise['duration']} minutes",
                       style: TextStyle(
                         color: Colors.grey[600],
-                        fontSize: 14,
+                        fontSize: 16,
                       ),
                     ),
                     ],
@@ -960,6 +925,11 @@ class _ExerciseTabState extends State<ExerciseTab> {
         ),
     ),
     );
+  }
+
+  String capitalize(String s) {
+    if (s.isEmpty) return s;
+    return s[0].toUpperCase() + s.substring(1);
   }
 
   Widget _buildExerciseChip(String text, Color color) {

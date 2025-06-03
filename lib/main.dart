@@ -9,7 +9,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Initialize the daily reset service
   final dailyResetService = DailyResetService();
   await dailyResetService.initialize();
 
@@ -24,7 +23,6 @@ class FitApp extends StatelessWidget {
       title: 'Fit App',
       theme: ThemeData(
         primarySwatch: Colors.green,
-        // Add custom theme for better UI
         appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFF06402B),
           foregroundColor: Colors.white,
