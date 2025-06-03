@@ -1,4 +1,3 @@
-// lib/services/auth_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -9,7 +8,6 @@ class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  // Email/Password Signup (existing method with workaround)
   Future<User?> signUpWithEmailPassword({
     required String email,
     required String password,
@@ -44,8 +42,6 @@ class AuthService {
     }
   }
 
-  // Email/Password Login (existing method with workaround)
-// Email/Password Login (existing method with workaround)
   Future<User?> signInWithEmailPassword({
     required String email,
     required String password,
@@ -56,7 +52,6 @@ class AuthService {
         password: password,
       );
 
-      // Update user profile to ensure Firestore document exists
       if (userCredential.user != null) {
         await _updateUserProfile(
           userCredential.user!,
@@ -91,30 +86,23 @@ class AuthService {
     }
   }
 
-  // Google Sign-In
   Future<User?> signInWithGoogle() async {
     try {
-      // Begin interactive sign in process
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        // User canceled the sign-in
         return null;
       }
 
-      // Obtain auth details from request
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
 
-      // Create a new credential for signing in
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      // Sign in to Firebase with Google credentials
       UserCredential userCredential = await _auth.signInWithCredential(credential);
 
-      // Update user profile in Firestore
       if (userCredential.user != null) {
         await _updateUserProfile(
           userCredential.user!,
@@ -129,7 +117,6 @@ class AuthService {
     } catch (e) {
       if (kDebugMode) print("Google sign-in error: $e");
 
-      // Handle PigeonUserDetails error for Google sign-in too
       if (e.toString().contains('PigeonUserDetails') ||
           e.toString().contains('List<Object?>')) {
         try {
@@ -152,7 +139,6 @@ class AuthService {
     }
   }
 
-  // Helper method to update user profile
   Future<void> _updateUserProfile(
       User user,
       String fullName,
@@ -160,16 +146,13 @@ class AuthService {
         bool isGoogleSignIn = false,
       }) async {
     try {
-      // Update display name if not set
       if (user.displayName == null || user.displayName!.isEmpty) {
         await user.updateDisplayName(fullName);
       }
 
-      // Check if user document already exists
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
 
       if (userDoc.exists) {
-        // User exists - only update basic info, preserve isAdmin status
         await _firestore.collection('users').doc(user.uid).update({
           'fullName': fullName,
           'email': email,
@@ -177,7 +160,6 @@ class AuthService {
           'lastSignIn': FieldValue.serverTimestamp(),
         });
       } else {
-        // New user - set all fields including isAdmin: false
         await _firestore.collection('users').doc(user.uid).set({
           'fullName': fullName,
           'email': email,
@@ -185,7 +167,7 @@ class AuthService {
           'createdAt': FieldValue.serverTimestamp(),
           'lastSignIn': FieldValue.serverTimestamp(),
           'uid': user.uid,
-          'isAdmin': false, // Only set for new users
+          'isAdmin': false,
         });
       }
 
@@ -221,7 +203,6 @@ class AuthService {
     }
   }
 
-  // Sign Out
   Future<void> signOut() async {
     try {
       await Future.wait([
@@ -234,7 +215,6 @@ class AuthService {
     }
   }
 
-  // Password Reset
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
@@ -244,13 +224,10 @@ class AuthService {
     }
   }
 
-  // Get current user
   User? get currentUser => _auth.currentUser;
 
-  // Auth state stream
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  // Check if user has specific sign-in method
   Future<List<String>> getSignInMethods(String email) async {
     try {
       return await _auth.fetchSignInMethodsForEmail(email);

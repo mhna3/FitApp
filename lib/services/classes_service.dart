@@ -1,4 +1,3 @@
-// lib/services/classes_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/class_model.dart';
@@ -7,7 +6,6 @@ class ClassesService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Get all active classes
   Stream<List<FitnessClass>> getClasses() {
     return _firestore
         .collection('classes')
@@ -19,7 +17,6 @@ class ClassesService {
       ..sort((a, b) => a.dateTime.compareTo(b.dateTime)));
   }
 
-  // Get upcoming classes only
   Stream<List<FitnessClass>> getUpcomingClasses() {
     return _firestore
         .collection('classes')
@@ -35,7 +32,6 @@ class ClassesService {
     });
   }
 
-  // Get classes by category
   Stream<List<FitnessClass>> getClassesByCategory(String category) {
     return _firestore
         .collection('classes')
@@ -52,7 +48,6 @@ class ClassesService {
     });
   }
 
-  // Get user's registered classes
   Stream<List<FitnessClass>> getUserRegisteredClasses() {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
@@ -70,7 +65,6 @@ class ClassesService {
       ..sort((a, b) => a.dateTime.compareTo(b.dateTime)));
   }
 
-  // Add a new class (Admin only)
   Future<String> addClass(FitnessClass fitnessClass) async {
     try {
       final docRef = _firestore.collection('classes').doc();
@@ -83,7 +77,6 @@ class ClassesService {
     }
   }
 
-  // Update a class (Admin only)
   Future<void> updateClass(FitnessClass fitnessClass) async {
     try {
       await _firestore
@@ -95,7 +88,6 @@ class ClassesService {
     }
   }
 
-  // Delete a class (Admin only) - actually just marks as inactive
   Future<void> deleteClass(String classId) async {
     try {
       await _firestore
@@ -107,7 +99,6 @@ class ClassesService {
     }
   }
 
-  // Register user for a class
   Future<bool> registerForClass(String classId) async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
@@ -122,22 +113,18 @@ class ClassesService {
 
       final fitnessClass = FitnessClass.fromMap(classDoc.data()!);
 
-      // Check if class is full
       if (fitnessClass.isFull) {
         throw Exception('Class is full');
       }
 
-      // Check if user is already registered
       if (fitnessClass.registeredUsers.contains(userId)) {
         throw Exception('Already registered for this class');
       }
 
-      // Check if class is in the past
       if (!fitnessClass.isUpcoming) {
         throw Exception('Cannot register for past classes');
       }
 
-      // Add user to registered users
       await _firestore.collection('classes').doc(classId).update({
         'registeredUsers': FieldValue.arrayUnion([userId])
       });
@@ -148,7 +135,6 @@ class ClassesService {
     }
   }
 
-  // Unregister user from a class
   Future<bool> unregisterFromClass(String classId) async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) {
@@ -163,17 +149,14 @@ class ClassesService {
 
       final fitnessClass = FitnessClass.fromMap(classDoc.data()!);
 
-      // Check if user is registered
       if (!fitnessClass.registeredUsers.contains(userId)) {
         throw Exception('Not registered for this class');
       }
 
-      // Check if class is in the past (allow unregistering up to 2 hours before)
       if (fitnessClass.dateTime.isBefore(DateTime.now().add(Duration(hours: 2)))) {
         throw Exception('Cannot unregister less than 2 hours before class');
       }
 
-      // Remove user from registered users
       await _firestore.collection('classes').doc(classId).update({
         'registeredUsers': FieldValue.arrayRemove([userId])
       });
@@ -184,7 +167,6 @@ class ClassesService {
     }
   }
 
-  // Check if current user is admin
   Future<bool> isUserAdmin() async {
     final userId = _auth.currentUser?.uid;
     if (userId == null) return false;
@@ -200,7 +182,6 @@ class ClassesService {
     }
   }
 
-  // Get class categories
   Future<List<String>> getCategories() async {
     try {
       final snapshot = await _firestore
@@ -221,7 +202,6 @@ class ClassesService {
     }
   }
 
-  // Get difficulty levels
   List<String> getDifficultyLevels() {
     return ['Beginner', 'Intermediate', 'Advanced'];
   }

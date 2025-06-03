@@ -1,5 +1,3 @@
-// lib/services/food_service.dart - Updated with Fixed Goal Handling
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'user_service.dart';
@@ -9,10 +7,8 @@ class FoodService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final UserService _userService = UserService();
 
-  // Get current user's email
   String? get _currentUserEmail => _auth.currentUser?.email;
 
-  // Add food item to user's daily intake
   Future<void> addFoodItem(Map<String, dynamic> foodData) async {
     if (_currentUserEmail == null) throw Exception('User not logged in');
 
@@ -20,7 +16,6 @@ class FoodService {
     final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     try {
-      // Create the food item document
       final foodItem = {
         'userEmail': _currentUserEmail,
         'date': dateString,
@@ -44,7 +39,6 @@ class FoodService {
     }
   }
 
-  // Get today's food items for current user
   Future<List<Map<String, dynamic>>> getTodaysFoodItems() async {
     if (_currentUserEmail == null) return [];
 
@@ -52,21 +46,18 @@ class FoodService {
     final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     try {
-      // Query without orderBy to avoid composite index requirement
       final querySnapshot = await _firestore
           .collection('user_food_intake')
           .where('userEmail', isEqualTo: _currentUserEmail)
           .where('date', isEqualTo: dateString)
           .get();
 
-      // Convert to list and sort in memory by timestamp (most recent first)
       final items = querySnapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return data;
       }).toList();
 
-      // Sort by timestamp (newest first)
       items.sort((a, b) {
         final timestampA = a['timestamp'] as Timestamp?;
         final timestampB = b['timestamp'] as Timestamp?;
@@ -85,7 +76,6 @@ class FoodService {
     }
   }
 
-  // Calculate today's total nutrients
   Future<Map<String, double>> getTodaysNutrients() async {
     final foodItems = await getTodaysFoodItems();
 
@@ -118,7 +108,6 @@ class FoodService {
     };
   }
 
-  // Delete a food item
   Future<void> deleteFoodItem(String itemId) async {
     try {
       await _firestore.collection('user_food_intake').doc(itemId).delete();
@@ -127,7 +116,6 @@ class FoodService {
     }
   }
 
-  // Clean up old food items (older than 7 days to save storage)
   Future<void> cleanupOldItems() async {
     if (_currentUserEmail == null) return;
 
@@ -135,7 +123,6 @@ class FoodService {
     final weekAgoString = '${weekAgo.year}-${weekAgo.month.toString().padLeft(2, '0')}-${weekAgo.day.toString().padLeft(2, '0')}';
 
     try {
-      // Simple query without orderBy to avoid index issues
       final querySnapshot = await _firestore
           .collection('user_food_intake')
           .where('userEmail', isEqualTo: _currentUserEmail)
@@ -156,23 +143,20 @@ class FoodService {
     }
   }
 
-  // Get user's food goals from their profile (Updated to use UserService)
   Future<Map<String, double>> getUserGoals() async {
     try {
       return await _userService.getUserFitnessGoals();
     } catch (e) {
       print('Error getting user goals, using defaults: $e');
-      // Fallback to default goals if user service fails
       return {
         'calories': 2000,
-        'protein': 150,  // grams
-        'carbs': 250,    // grams
-        'fat': 65,       // grams
+        'protein': 150,
+        'carbs': 250,
+        'fat': 65,
       };
     }
   }
 
-  // Calculate goal progress percentages (Updated to use actual user goals)
   Future<Map<String, double>> calculateGoalProgress(Map<String, double> nutrients) async {
     final goals = await getUserGoals();
 
@@ -184,7 +168,6 @@ class FoodService {
     };
   }
 
-  // Get formatted goal display text
   Future<Map<String, String>> getGoalDisplayText() async {
     final goals = await getUserGoals();
 
@@ -196,7 +179,6 @@ class FoodService {
     };
   }
 
-  // Check if user has reached their daily goals
   Future<Map<String, bool>> checkGoalsReached() async {
     final nutrients = await getTodaysNutrients();
     final progress = await calculateGoalProgress(nutrients);
@@ -209,7 +191,6 @@ class FoodService {
     };
   }
 
-  // Get nutrition summary for weekly/monthly reports
   Future<Map<String, dynamic>> getNutritionSummary(DateTime startDate, DateTime endDate) async {
     if (_currentUserEmail == null) return {};
 
@@ -225,7 +206,6 @@ class FoodService {
           .where('date', whereIn: dates)
           .get();
 
-      // Aggregate data by date
       final dateWiseData = <String, Map<String, double>>{};
 
       for (final doc in querySnapshot.docs) {

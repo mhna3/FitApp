@@ -1,5 +1,3 @@
-// lib/services/exercise_service.dart - Fixed Goals Display
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'user_service.dart';
@@ -9,10 +7,8 @@ class ExerciseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final UserService _userService = UserService();
 
-  // Get current user's email
   String? get _currentUserEmail => _auth.currentUser?.email;
 
-  // Add exercise item to user's daily activity
   Future<void> addExerciseItem(Map<String, dynamic> exerciseData) async {
     if (_currentUserEmail == null) throw Exception('User not logged in');
 
@@ -20,7 +16,6 @@ class ExerciseService {
     final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     try {
-      // Create the exercise item document
       final exerciseItem = {
         'userEmail': _currentUserEmail,
         'date': dateString,
@@ -39,7 +34,6 @@ class ExerciseService {
     }
   }
 
-  // Get today's exercise items for current user
   Future<List<Map<String, dynamic>>> getTodaysExerciseItems() async {
     if (_currentUserEmail == null) return [];
 
@@ -47,21 +41,18 @@ class ExerciseService {
     final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
 
     try {
-      // Query without orderBy to avoid composite index requirement
       final querySnapshot = await _firestore
           .collection('user_exercise_intake')
           .where('userEmail', isEqualTo: _currentUserEmail)
           .where('date', isEqualTo: dateString)
           .get();
 
-      // Convert to list and sort in memory by timestamp (most recent first)
       final items = querySnapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id;
         return data;
       }).toList();
 
-      // Sort by timestamp (newest first)
       items.sort((a, b) {
         final timestampA = a['timestamp'] as Timestamp?;
         final timestampB = b['timestamp'] as Timestamp?;
@@ -80,7 +71,6 @@ class ExerciseService {
     }
   }
 
-  // Calculate today's total exercise stats
   Future<Map<String, double>> getTodaysExerciseStats() async {
     final exerciseItems = await getTodaysExerciseItems();
 
@@ -100,7 +90,6 @@ class ExerciseService {
     };
   }
 
-  // Delete an exercise item
   Future<void> deleteExerciseItem(String itemId) async {
     try {
       await _firestore.collection('user_exercise_intake').doc(itemId).delete();
@@ -109,7 +98,6 @@ class ExerciseService {
     }
   }
 
-  // Clean up old exercise items (older than 7 days to save storage)
   Future<void> cleanupOldItems() async {
     if (_currentUserEmail == null) return;
 
@@ -137,22 +125,19 @@ class ExerciseService {
     }
   }
 
-  // Get user's exercise goals from their profile (Updated to use UserService)
   Future<Map<String, double>> getUserExerciseGoals() async {
     try {
       return await _userService.getUserExerciseGoals();
     } catch (e) {
       print('Error getting user exercise goals, using defaults: $e');
-      // Fallback to default goals if user service fails
       return {
-        'caloriesBurned': 300,    // calories per day
-        'duration': 60,          // minutes per day
-        'exercises': 3,          // number of exercises per day
+        'caloriesBurned': 500,
+        'duration': 60,
+        'exercises': 3,
       };
     }
   }
 
-  // Calculate exercise goal progress percentages (Updated to use actual user goals)
   Future<Map<String, double>> calculateExerciseProgress(Map<String, double> stats) async {
     final goals = await getUserExerciseGoals();
 
@@ -163,13 +148,11 @@ class ExerciseService {
     };
   }
 
-  // Get recent exercise summary for profile display (RENAMED TO AVOID CONFLICT)
   Future<List<Map<String, dynamic>>> getRecentExercises() async {
     final items = await getTodaysExerciseItems();
     return items.take(3).toList(); // Return top 3 recent exercises
   }
 
-  // Get formatted goal display text (FIXED to show proper values)
   Future<Map<String, String>> getGoalDisplayText() async {
     final goals = await getUserExerciseGoals();
 
@@ -180,7 +163,6 @@ class ExerciseService {
     };
   }
 
-  // Check if user has reached their daily exercise goals
   Future<Map<String, bool>> checkGoalsReached() async {
     final stats = await getTodaysExerciseStats();
     final progress = await calculateExerciseProgress(stats);
@@ -192,7 +174,6 @@ class ExerciseService {
     };
   }
 
-  // Get exercise data for weekly/monthly reports (KEPT ORIGINAL NAME FOR REPORTS)
   Future<Map<String, dynamic>> getExerciseReport(DateTime startDate, DateTime endDate) async {
     if (_currentUserEmail == null) return {};
 
@@ -208,7 +189,6 @@ class ExerciseService {
           .where('date', whereIn: dates)
           .get();
 
-      // Aggregate data by date
       final dateWiseData = <String, Map<String, double>>{};
 
       for (final doc in querySnapshot.docs) {
@@ -239,7 +219,6 @@ class ExerciseService {
     }
   }
 
-  // Get workout streak (consecutive days with exercises)
   Future<int> getWorkoutStreak() async {
     if (_currentUserEmail == null) return 0;
 
@@ -247,7 +226,7 @@ class ExerciseService {
       int streak = 0;
       final today = DateTime.now();
 
-      for (int i = 0; i < 365; i++) { // Check up to a year
+      for (int i = 0; i < 365; i++) {
         final checkDate = today.subtract(Duration(days: i));
         final dateString = '${checkDate.year}-${checkDate.month.toString().padLeft(2, '0')}-${checkDate.day.toString().padLeft(2, '0')}';
 
@@ -261,7 +240,7 @@ class ExerciseService {
         if (querySnapshot.docs.isNotEmpty) {
           streak++;
         } else {
-          break; // Streak broken
+          break;
         }
       }
 
@@ -272,7 +251,6 @@ class ExerciseService {
     }
   }
 
-  // Get favorite exercises (most frequently done)
   Future<List<Map<String, dynamic>>> getFavoriteExercises({int limit = 5}) async {
     if (_currentUserEmail == null) return [];
 
@@ -282,7 +260,6 @@ class ExerciseService {
           .where('userEmail', isEqualTo: _currentUserEmail)
           .get();
 
-      // Count exercise frequency
       final exerciseCount = <String, Map<String, dynamic>>{};
 
       for (final doc in querySnapshot.docs) {
@@ -303,7 +280,6 @@ class ExerciseService {
         exerciseCount[exerciseName]!['totalDuration'] = exerciseCount[exerciseName]!['totalDuration'] + (data['duration'] ?? 0);
       }
 
-      // Sort by frequency and return top exercises
       final sortedExercises = exerciseCount.values.toList();
       sortedExercises.sort((a, b) => (b['count'] as int).compareTo(a['count'] as int));
 
